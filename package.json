@@ -1,7 +1,7 @@
 {
   "name": "mern-places-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend of the MERN project from the Udemy course: https://www.udemy.com/course/react-nodejs-express-mongodb-the-mern-fullstack-guide",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
