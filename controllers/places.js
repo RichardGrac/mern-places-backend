@@ -1,7 +1,9 @@
 const HttpError = require('../models/http-error')
 const uuid = require('uuid/v4')
+const { validationResult } = require('express-validator');
+const getCoordsForAddress = require('../util/location')
 
-const DUMMY_PLACES = [
+let DUMMY_PLACES = [
     {
         id: 'p1',
         title: 'Empire State Building',
@@ -17,7 +19,7 @@ const DUMMY_PLACES = [
 
 const getPlaceById = (req, res, next) => {
     const pid = req.params.pid
-    const places = DUMMY_PLACES.filter(p => p.id == pid)
+    const places = DUMMY_PLACES.filter(p => p.id === pid)
     console.log('pid: ', pid)
     console.log('places: ', DUMMY_PLACES)
     if (places.length < 1)
@@ -42,8 +44,19 @@ const getPlacesByUserId = (req, res, next) => {
     })
 }
 
-const postPlace = (req, res, next) => {
-    const {title, description, address, location, creator} = req.body
+const postPlace = async (req, res, next) => {
+    const error = validationResult(req)
+    if (!error.isEmpty())
+        throw new HttpError('Invalid inputs passed, please check your data', 422)
+
+    const {title, description, address, creator} = req.body
+
+    let location
+    try {
+        location = await getCoordsForAddress(address)
+    } catch (e) {
+        return next(e)
+    }
 
     const newPlace = {
         id: uuid(),
@@ -65,23 +78,21 @@ const postPlace = (req, res, next) => {
 }
 
 const updatePlace = (req, res, next) => {
-    const {title, description, address, location, creator} = req.body
+    const error = validationResult(req)
+    if (!error.isEmpty())
+        throw new HttpError('Invalid inputs passed, please check your data', 422)
+
+    const {title, description} = req.body
     const {pid} = req.params
 
-    const index = DUMMY_PLACES.findIndex(p => p.id == pid)
+    const index = DUMMY_PLACES.findIndex(p => p.id === pid)
 
     if (index === -1) {
-        throw new HttpError('PlaceId could not be found')
+        throw new HttpError('PlaceId could not be found', 404)
     }
 
-    const updatedPlace = {
-        id: DUMMY_PLACES[index].id,
-        title,
-        description,
-        address,
-        location,
-        creator,
-    }
+    const actualPlace = DUMMY_PLACES[index]
+    const updatedPlace = {...actualPlace, title, description}
 
     DUMMY_PLACES[index] = updatedPlace
 
@@ -94,7 +105,19 @@ const updatePlace = (req, res, next) => {
 }
 
 const deletePlace = (req, res, next) => {
-    
+    const {pid} = req.params
+
+    const index = DUMMY_PLACES.findIndex(p => p.id === pid)
+    if (index === -1)
+        throw new HttpError('PlaceId could not be found', 404)
+
+    DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== pid)
+
+    res
+        .status(200)
+        .json({
+            message: 'Place deleted successfully'
+        })
 }
 
 exports.getPlaceById = getPlaceById
