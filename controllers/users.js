@@ -74,14 +74,13 @@ const signIn = (req, res, next) => {
     if (!error.isEmpty())
         throw new HttpError('Invalid inputs passed, please check your data', 422)
 
-    const {name, password} = req.body
+    const {email, password} = req.body
 
-    const user = DUMMY_USERS.filter(u => u.name === name && u.password === password)
-
+    const user = DUMMY_USERS.find(u => u.email === email && u.password === password)
     if (!user)
-        throw new HttpError('Error while sign in, please verify credentials')
+        throw new HttpError('Error while sign in, please verify credentials', 404)
 
-    res.status(200).json({message: 'Successful log in', isAuth: true})
+    res.status(200).json({message: 'Successful log in', userId: user.id})
 }
 
 exports.getUsers = getUsers

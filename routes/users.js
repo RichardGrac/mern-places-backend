@@ -18,7 +18,7 @@ router.post(
     '/signin',
     [
         check('email').normalizeEmail().isEmail(),
-        check('name').not().isEmpty()
+        check('password').isLength({min: 6})
     ],
     usersController.signIn
 )
