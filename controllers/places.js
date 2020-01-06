@@ -20,14 +20,12 @@ let DUMMY_PLACES = [
 const getPlaceById = (req, res, next) => {
     const pid = req.params.pid
     const places = DUMMY_PLACES.filter(p => p.id === pid)
-    console.log('pid: ', pid)
-    console.log('places: ', DUMMY_PLACES)
     if (places.length < 1)
         return next(new HttpError('Cannot find Place with given id', 404))
 
     res.json({
-        message: 'Successful request to PLACES',
-        places
+        message: 'PlaceId successfully found',
+        place: places[0]
     })
 }
 
@@ -54,6 +52,7 @@ const postPlace = async (req, res, next) => {
     let location
     try {
         location = await getCoordsForAddress(address)
+
     } catch (e) {
         return next(e)
     }

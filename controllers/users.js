@@ -7,13 +7,13 @@ let DUMMY_USERS = [
         id: 'u1',
         name: 'Richard',
         email: 'richard@test.com',
-        password: 'test',
+        password: 'testtest',
     },
     {
         id: 'u2',
         name: 'Maximilian',
         email: 'max@test.com',
-        password: 'test',
+        password: 'testtest',
     },
 ]
 
