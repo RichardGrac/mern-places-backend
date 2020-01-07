@@ -5,6 +5,7 @@ const placesRoutes = require('./routes/places')
 const usersRoutes = require('./routes/users')
 const HttpError = require('./models/http-error')
 const cors = require('cors')
+const mongoose = require('mongoose')
 
 const app = express()
 
@@ -35,6 +36,14 @@ app.use((error, req, res, next) => {
     res.status(error.code || 500)
     res.json({message: error.message || 'Unknown error occurred'})
 })
+mongoose
+    .connect(`mongodb://localhost:27017/mern_course_backend?replicaSet=rs`)
+    .then(() => {
+        console.log('App Connected to Database')
+    })
+    .catch(err => {
+        console.log(err)
+    })
 
 app.listen(app.get('port'), () => {
     console.log('Running backend at port ' + app.get('port'))
