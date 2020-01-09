@@ -49,7 +49,7 @@ const postPlace = async (req, res, next) => {
     if (!error.isEmpty())
         throw new HttpError('Invalid inputs passed, please check your data', 422)
 
-    const {title, description, address, creator} = req.body
+    const {title, description, address} = req.body
     let location
     try {
         location = await getCoordsForAddress(address)
@@ -63,12 +63,12 @@ const postPlace = async (req, res, next) => {
         description,
         address,
         location,
-        creator,
+        creator: req.userData.userId,
         imageUrl: req.file.path
     })
     let user
     try {
-        user = await User.findById(creator)
+        user = await User.findById(req.userData.userId)
     } catch (e) {
         return next(new HttpError('Something went wrong while Creating Place. ' + e.message, 500))
     }
