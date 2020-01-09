@@ -70,7 +70,7 @@ const postPlace = async (req, res, next) => {
     try {
         user = await User.findById(creator)
     } catch (e) {
-        return next(new HttpError('Something went wrong while Creating Place', 500))
+        return next(new HttpError('Something went wrong while Creating Place. ' + e.message, 500))
     }
 
     if (!user) return next(new HttpError('Cannot find User for given Id', 404))
@@ -84,9 +84,12 @@ const postPlace = async (req, res, next) => {
         await user.save({ session: sess })
         await sess.commitTransaction()
     } catch (e) {
-        console.log('e1: ', e)
         await sess.abortTransaction();
-        return next(new HttpError('Something went wrong while Creating Place', 500))
+        return next(
+            new HttpError("Something went wrong while Creating Place. Probably Places collection has not been created manually, try db.createCollection('places')",
+                500
+            )
+        )
     } finally {
         sess.endSession()
     }
@@ -122,11 +125,19 @@ const updatePlace = async (req, res, next) => {
     let p
     try {
         p = await Place.findById(pid)
-        p.title = title
-        p.description = description
-        p.save()
+        if (!p) {
+            return next(new HttpError('Could not find related Place', 404))
+        } else {
+            if (p.creator == req.userData.userId) {
+                p.title = title
+                p.description = description
+                p.save()
+            } else {
+                return next(new HttpError('You do not have necessary permissions to update this place', 401))
+            }
+        }
     } catch (e) {
-        throw new HttpError('Place could not be updated', 500)
+        return next(new HttpError('Place could not be updated, ' + e.message, 500))
     }
 
     res
@@ -144,22 +155,28 @@ const deletePlace = async (req, res, next) => {
     let imagePath
     try {
         p = await Place.findById(pid).populate('creator')
-        console.log('p: ', p)
         imagePath = p.imageUrl
         if (p) {
-            const session = await mongoose.startSession()
-            session.startTransaction()
-            await p.remove({session})
-            p.creator.places.pull(p) // Will remove the ID We had in the Places Array
-            await p.creator.save({session})
-            await session.commitTransaction()
+            // Or p.creator.toString() === req.userData.userId
+            if (p.creator._id == req.userData.userId) {
+                const session = await mongoose.startSession()
+                session.startTransaction()
+                await p.remove({session})
+                p.creator.places.pull(p) // Will remove the ID We had in the Places Array
+                await p.creator.save({session})
+                await session.commitTransaction()
+            } else {
+                return next(new HttpError('You do not have necessary permissions to delete this place', 401))
+            }
+        } else {
+            return next(new HttpError('Could not find related Place', 404))
         }
     } catch (e) {
-        throw new HttpError('Place could not be deleted successfully', 500)
+        return next(new HttpError('Place could not be deleted successfully, ' + e.message, 500))
     }
 
     fs.unlink(imagePath, err => {
-        console.log('err: ', err)
+        console.log('fs.unlink, error: ', err)
     })
 
     res

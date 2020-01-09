@@ -3,9 +3,15 @@ const express = require('express')
 const router = express.Router()
 const { check } = require('express-validator');
 const fileUpload = require('../middleware/file-upload')
+const checkAuth = require('../middleware/check-auth.js')
 
+// Public routes
 router.get('/:pid', placesController.getPlaceById)
 router.get('/user/:uid', placesController.getPlacesByUserId)
+
+// Private routes
+router.use(checkAuth)
+
 router.post(
     '/',
     fileUpload.single('image'),
