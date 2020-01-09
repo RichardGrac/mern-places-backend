@@ -4,6 +4,7 @@ const { validationResult } = require('express-validator');
 const getCoordsForAddress = require('../util/location')
 const Place = require('../models/Place')
 const User = require('../models/User')
+const fs = require('fs')
 
 const getPlaceById = async (req, res, next) => {
     const pid = req.params.pid
@@ -63,9 +64,8 @@ const postPlace = async (req, res, next) => {
         address,
         location,
         creator,
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg'
+        imageUrl: req.file.path
     })
-
     let user
     try {
         user = await User.findById(creator)
@@ -84,6 +84,7 @@ const postPlace = async (req, res, next) => {
         await user.save({ session: sess })
         await sess.commitTransaction()
     } catch (e) {
+        console.log('e1: ', e)
         await sess.abortTransaction();
         return next(new HttpError('Something went wrong while Creating Place', 500))
     } finally {
@@ -140,8 +141,11 @@ const deletePlace = async (req, res, next) => {
     const {pid} = req.params
 
     let p
+    let imagePath
     try {
         p = await Place.findById(pid).populate('creator')
+        console.log('p: ', p)
+        imagePath = p.imageUrl
         if (p) {
             const session = await mongoose.startSession()
             session.startTransaction()
@@ -153,6 +157,10 @@ const deletePlace = async (req, res, next) => {
     } catch (e) {
         throw new HttpError('Place could not be deleted successfully', 500)
     }
+
+    fs.unlink(imagePath, err => {
+        console.log('err: ', err)
+    })
 
     res
         .status(200)

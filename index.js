@@ -1,3 +1,6 @@
+const fs = require('fs')
+const path = require('path')
+
 const express = require('express')
 const bodyParser = require('body-parser')
 
@@ -10,6 +13,9 @@ const mongoose = require('mongoose')
 const app = express()
 
 app.use(bodyParser.json())
+
+app.use('/uploads/images', express.static(path.join('uploads', 'images')))
+
 app.use(express.json())
 app.use(cors())
 
@@ -19,6 +25,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE')
     next()
 })
+
 app.set('port', process.env.PORT || 5000)
 
 app.use('/api/places', placesRoutes)
@@ -29,6 +36,13 @@ app.use((req, res, next) => {
 })
 
 app.use((error, req, res, next) => {
+    if (req.file) {
+        // console.log('req.file: ', req.file)
+        fs.unlink(req.file.path, err => {
+            console.log('Unlink error: ' + err)
+        })
+    }
+
     if (res.headerSent) {
         // If something else has returned a response
         return next(error)
