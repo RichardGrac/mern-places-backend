@@ -3,7 +3,6 @@ const { validationResult } = require('express-validator');
 const User = require('../models/User')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const PRIVATE_KEY = require('../util/shared')
 
 const getUsers = async (req, res, next) => {
 
@@ -86,7 +85,7 @@ const signUp = async (req, res, next) => {
     try {
         token = jwt.sign(
             {userId: user.id, email: user.email},
-            PRIVATE_KEY.JWT_PRIVATE_KEY,
+            process.env.JWT_PRIVATE_KEY,
             {expiresIn: '1h'}
         )
     } catch (e) {
@@ -108,7 +107,6 @@ const signIn = async (req, res, next) => {
         return next(new HttpError('Invalid inputs passed, please check your data', 422))
 }
     const {email, password} = req.body
-    console.log('req.body: ', req.body)
 
     let user
     try {
@@ -116,7 +114,7 @@ const signIn = async (req, res, next) => {
     } catch (e) {
         return next(new HttpError('Something went wrong while signing in, please try again later', 500))
     }
-    console.log('user: ', user)
+
     if (!user)
         return next(new HttpError('Error while sign in, please verify credentials', 401))
 
@@ -135,7 +133,7 @@ const signIn = async (req, res, next) => {
     try {
         token = jwt.sign(
             {userId: user.id, email: user.email},
-            PRIVATE_KEY.JWT_PRIVATE_KEY,
+            process.env.JWT_PRIVATE_KEY,
             {expiresIn: '1h'}
         )
     } catch (e) {

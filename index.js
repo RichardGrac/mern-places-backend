@@ -51,8 +51,9 @@ app.use((error, req, res, next) => {
     res.status(error.code || 500)
     res.json({message: error.message || 'Unknown error occurred'})
 })
+
 mongoose
-    .connect(`mongodb://localhost:27017/mern_course_backend?replicaSet=rs`)
+    .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0-npgui.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`)
     .then(() => {
         console.log('App Connected to Database')
     })

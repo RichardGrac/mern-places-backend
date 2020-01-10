@@ -1,0 +1,9 @@
+{
+  "env": {
+    "DB_USER": "RichardGrac",
+    "DB_PASSWORD": "X8Vtrcg5RmfPTpBL",
+    "DB_NAME": "mern_course_backend",
+    "GOOGLE_MAPS_API_KEY": "AIzaSyCY3pFbxLf6yi9_d6knrL-3gSudK7nHk0o",
+    "JWT_PRIVATE_KEY": "secret_private_key"
+  }
+}

@@ -1,6 +1,5 @@
 const HttpError = require('../models/http-error')
 const jwt = require('jsonwebtoken')
-const PRIVATE_KEY = require('../util/shared')
 
 module.exports = (req, res, next) => {
     try {
@@ -10,7 +9,7 @@ module.exports = (req, res, next) => {
             throw new Error('Auth failed')
         }
 
-        const decodedToken = jwt.verify(token, PRIVATE_KEY.JWT_PRIVATE_KEY)
+        const decodedToken = jwt.verify(token, process.env.JWT_PRIVATE_KEY)
         req.userData = {
             userId: decodedToken.userId,
         }
