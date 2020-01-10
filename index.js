@@ -8,9 +8,11 @@ const placesRoutes = require('./routes/places')
 const usersRoutes = require('./routes/users')
 const HttpError = require('./models/http-error')
 const mongoose = require('mongoose')
+const cors = require('cors')
 
 const app = express()
 
+app.use(cors())
 app.use(bodyParser.json())
 
 app.use('/uploads/images', express.static(path.join('uploads', 'images')))
@@ -18,7 +20,7 @@ app.use('/uploads/images', express.static(path.join('uploads', 'images')))
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', "*")
     res.setHeader('Access-Control-Allow-Headers', "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PATCH, DELETE, OPTIONS')
     next()
 })
 
