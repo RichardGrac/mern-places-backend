@@ -33,7 +33,7 @@ app.use('/api/places', placesRoutes)
 app.use('/api/users', usersRoutes)
 
 app.use((req, res, next) => {
-    throw new HttpError('Could not find route', 404)
+    return next(new HttpError('Could not find route', 404))
 })
 
 app.use((error, req, res, next) => {
