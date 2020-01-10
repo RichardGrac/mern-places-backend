@@ -46,14 +46,15 @@ const getPlacesByUserId = async (req, res, next) => {
 
 const postPlace = async (req, res, next) => {
     const error = validationResult(req)
+
     if (!error.isEmpty())
         return next(new HttpError('Invalid inputs passed, please check your data', 422))
 
     const {title, description, address} = req.body
+
     let location
     try {
         location = await getCoordsForAddress(address)
-
     } catch (e) {
         return next(e)
     }
@@ -66,6 +67,7 @@ const postPlace = async (req, res, next) => {
         creator: req.userData.userId,
         imageUrl: req.file.path
     })
+
     let user
     try {
         user = await User.findById(req.userData.userId)

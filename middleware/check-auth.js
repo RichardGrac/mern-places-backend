@@ -15,6 +15,6 @@ module.exports = (req, res, next) => {
         }
         next()
     } catch (e) {
-        throw new HttpError('Auth failed', 401)
+        return next(new HttpError('Auth failed', 401))
     }
 }
