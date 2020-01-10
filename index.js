@@ -7,7 +7,6 @@ const bodyParser = require('body-parser')
 const placesRoutes = require('./routes/places')
 const usersRoutes = require('./routes/users')
 const HttpError = require('./models/http-error')
-const cors = require('cors')
 const mongoose = require('mongoose')
 
 const app = express()
@@ -15,10 +14,6 @@ const app = express()
 app.use(bodyParser.json())
 
 app.use('/uploads/images', express.static(path.join('uploads', 'images')))
-
-app.use(express.json())
-app.use(cors())
-app.options('*', cors())
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', "*")
@@ -33,8 +28,9 @@ app.use('/api/places', placesRoutes)
 app.use('/api/users', usersRoutes)
 
 app.use((req, res, next) => {
-    return next(new HttpError('Could not find route', 404))
-})
+    const error = new HttpError('Could not find this route.', 404);
+    throw error;
+});
 
 app.use((error, req, res, next) => {
     if (req.file) {
