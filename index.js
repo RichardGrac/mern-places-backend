@@ -8,11 +8,9 @@ const placesRoutes = require('./routes/places')
 const usersRoutes = require('./routes/users')
 const HttpError = require('./models/http-error')
 const mongoose = require('mongoose')
-const cors = require('cors')
 
 const app = express()
 
-app.use(cors())
 app.use(bodyParser.json())
 
 app.use('/uploads/images', express.static(path.join('uploads', 'images')))
